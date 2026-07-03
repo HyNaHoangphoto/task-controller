@@ -6,7 +6,9 @@ import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import { Plus, Download } from "lucide-react";
 import Link from "next/link";
+
 export const dynamic = "force-dynamic";
+
 const STATUS_LABEL: Record<string, { label: string; cls: string }> = {
   PAID: { label: "Đã thanh toán", cls: "bg-accent/15 text-accent-light" },
   PARTIAL: { label: "Thanh toán 1 phần", cls: "bg-warn/15 text-warn" },

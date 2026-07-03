@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import SignForm from "@/components/SignForm";
 import { Hash, CheckCircle2 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function SignContractPage({ params }: { params: { id: string } }) {
   const contract = await prisma.contract.findUnique({
     where: { id: params.id },

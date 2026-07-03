@@ -6,6 +6,8 @@ import Sidebar from "@/components/Sidebar";
 import { X } from "lucide-react";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function NewTeamMemberPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect("/login");

@@ -3,7 +3,9 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { renderToStream, Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+
 export const dynamic = "force-dynamic";
+
 const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 11, fontFamily: "Helvetica" },
   header: { fontSize: 20, marginBottom: 4, color: "#34a853" },
