@@ -12,6 +12,13 @@ async function main() {
     },
   });
 
+  // Nếu user đã có dữ liệu (chạy seed lần trước rồi) thì dừng, không tạo trùng
+  const existing = await prisma.project.count({ where: { ownerId: user.id } });
+  if (existing > 0) {
+    console.log(`User đã có ${existing} dự án — bỏ qua seed để tránh trùng data.`);
+    return;
+  }
+
   const client = await prisma.client.create({
     data: {
       ownerId: user.id,

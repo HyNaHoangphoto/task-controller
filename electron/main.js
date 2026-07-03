@@ -15,7 +15,7 @@ const path = require("path");
 
 // ⚠️ Sau khi deploy web app lên Vercel, thay URL bên dưới bằng domain thật.
 const APP_URL =
-  process.env.TC_APP_URL || "https://hoang-app.vercel.app";
+  process.env.TC_APP_URL || "https://task-controller-lilac.vercel.app";
 const APP_ORIGIN = new URL(APP_URL).origin;
 
 const START_URL = process.env.TC_START_URL || APP_ORIGIN + "/login";

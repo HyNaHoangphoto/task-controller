@@ -28,6 +28,8 @@ export default async function DashboardPage() {
   const runningProjects = projects.filter((p) => p.status === "RUNNING").length;
 
   const firstName = session.user.name?.split(" ").pop() || "bạn";
+  const hour = Number(new Intl.DateTimeFormat("en-US", { hour: "numeric", hour12: false, timeZone: "Asia/Ho_Chi_Minh" }).format(new Date()));
+  const greeting = hour < 11 ? "Chào buổi sáng" : hour < 14 ? "Chào buổi trưa" : hour < 18 ? "Chào buổi chiều" : "Chào buổi tối";
 
   return (
     <div className="flex">
@@ -37,7 +39,7 @@ export default async function DashboardPage() {
           <div className="flex-1" />
         </div>
 
-        <h1 className="text-4xl font-bold text-accent-light mb-1">Chào buổi sáng, {firstName}</h1>
+        <h1 className="text-4xl font-bold text-accent-light mb-1">{greeting}, {firstName}</h1>
         <p className="text-muted mb-8">Hôm nay bạn có gì để làm?</p>
 
         <div className="grid grid-cols-4 gap-4 mb-4">
