@@ -35,7 +35,7 @@ const COMPARE_ROWS = [
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-bg text-white">
+    <div className="min-h-screen bg-bg text-text">
       {/* Nav */}
       <nav className="flex items-center justify-between px-8 py-5 max-w-6xl mx-auto sticky top-0 bg-bg/80 backdrop-blur z-20">
         <div className="flex items-center gap-2">
@@ -45,8 +45,8 @@ export default function Landing() {
           <span className="font-semibold">Task Controller</span>
         </div>
         <div className="hidden md:flex items-center gap-6 text-sm text-muted">
-          <a href="#features" className="hover:text-white transition">Tính năng</a>
-          <a href="#compare" className="hover:text-white transition">So sánh</a>
+          <a href="#features" className="hover:text-text transition">Tính năng</a>
+          <a href="#compare" className="hover:text-text transition">So sánh</a>
         </div>
         <div className="flex items-center gap-3">
           <Link href="/login" className="btn-ghost">Đăng nhập</Link>

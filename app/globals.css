@@ -2,21 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-bg: #131314;
+  --color-panel: #1a1b1c;
+  --color-card: #1f2020;
+  --color-border: #2a2b2c;
+  --color-muted: #abadb0;
+  --color-text: #e8eaed;
+}
+
+[data-theme="light"] {
+  --color-bg: #f6f7f6;
+  --color-panel: #ffffff;
+  --color-card: #ffffff;
+  --color-border: #e3e5e3;
+  --color-muted: #6b7280;
+  --color-text: #14161a;
+}
+
 html, body {
-  background: #131314;
-  color: #e8eaed;
+  background: var(--color-bg);
+  color: var(--color-text);
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  transition: background 0.15s, color 0.15s;
 }
 
 ::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-thumb { background: #2a2b2c; border-radius: 999px; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 999px; }
 
 .card {
-  @apply bg-card border border-border rounded-xl2 p-5;
+  @apply bg-card border border-border rounded-xl2 p-5 shadow-sm;
 }
 
 .btn-accent {
-  @apply bg-accent-gradient text-white font-semibold rounded-full px-5 py-2.5 text-sm hover:brightness-110 transition;
+  @apply bg-accent-gradient text-white font-semibold rounded-full px-5 py-2.5 text-sm hover:brightness-110 transition shadow-sm;
 }
 
 .btn-ghost {
@@ -24,7 +43,7 @@ html, body {
 }
 
 .input {
-  @apply w-full bg-panel border border-border rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-muted/50 outline-none focus:border-accent;
+  @apply w-full bg-panel border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted/50 outline-none focus:border-accent transition;
 }
 
 .label {

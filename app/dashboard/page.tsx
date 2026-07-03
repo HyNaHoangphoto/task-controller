@@ -105,7 +105,7 @@ function QuickCard({ icon, title, desc }: { icon: React.ReactNode; title: string
   );
 }
 
-function StatCard({ label, value, color = "text-white", isCount = false }: { label: string; value: number; color?: string; isCount?: boolean }) {
+function StatCard({ label, value, color = "text-text", isCount = false }: { label: string; value: number; color?: string; isCount?: boolean }) {
   return (
     <div className="card">
       <div className="text-xs text-muted tracking-wide mb-2">{label}</div>

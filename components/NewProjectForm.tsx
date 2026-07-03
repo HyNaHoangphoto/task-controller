@@ -23,7 +23,7 @@ export default function NewProjectForm({ clients }: { clients: { id: string; nam
 
   return (
     <form action={createProject} className="card w-full max-w-lg relative max-h-[90vh] overflow-y-auto">
-      <Link href="/projects" className="absolute top-5 right-5 text-muted hover:text-white"><X className="w-5 h-5" /></Link>
+      <Link href="/projects" className="absolute top-5 right-5 text-muted hover:text-text"><X className="w-5 h-5" /></Link>
       <h2 className="text-xl font-bold mb-1">Tạo dự án mới</h2>
       <p className="text-sm text-muted mb-6">Hoá đơn cọc và task khởi điểm sẽ được tự động tạo</p>
 

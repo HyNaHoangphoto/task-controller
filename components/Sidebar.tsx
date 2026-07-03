@@ -14,14 +14,15 @@ import {
   Zap,
   Hash,
 } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 const NAV = [
-  { href: "/dashboard", label: "Tổng quan", icon: LayoutGrid },
-  { href: "/projects", label: "Dự án", icon: Briefcase },
-  { href: "/invoices", label: "Hoá đơn", icon: FileSpreadsheet },
-  { href: "/clients", label: "Khách hàng", icon: Users },
-  { href: "/team", label: "Đội ngũ", icon: UserCog },
-  { href: "/calendar", label: "Lịch dự án", icon: CalendarDays },
+  { href: "/dashboard", key: "overview", icon: LayoutGrid },
+  { href: "/projects", key: "projects", icon: Briefcase },
+  { href: "/invoices", key: "invoices", icon: FileSpreadsheet },
+  { href: "/clients", key: "clients", icon: Users },
+  { href: "/team", key: "team", icon: UserCog },
+  { href: "/calendar", key: "calendar", icon: CalendarDays },
 ];
 
 export default function Sidebar({
@@ -32,6 +33,7 @@ export default function Sidebar({
   userEmail?: string | null;
 }) {
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   return (
     <aside className="w-[260px] shrink-0 h-screen sticky top-0 flex flex-col justify-between px-5 py-6 border-r border-border">
@@ -49,11 +51,11 @@ export default function Sidebar({
         </div>
 
         <Link href="/projects/new" className="btn-accent w-full flex items-center justify-center gap-2 mb-6">
-          <Plus className="w-4 h-4" /> Dự án mới
+          <Plus className="w-4 h-4" /> {t("newProject")}
         </Link>
 
         <nav className="flex flex-col gap-1">
-          {NAV.map(({ href, label, icon: Icon }) => {
+          {NAV.map(({ href, key, icon: Icon }) => {
             const active = pathname?.startsWith(href);
             return (
               <Link
@@ -64,7 +66,7 @@ export default function Sidebar({
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                {label}
+                {t(key)}
               </Link>
             );
           })}
@@ -77,13 +79,13 @@ export default function Sidebar({
             <Zap className="w-4 h-4 text-white" />
           </div>
           <div className="text-sm">
-            <div className="font-medium">Nâng cấp Pro</div>
-            <div className="text-xs text-muted">149k/tháng · Không giới hạn</div>
+            <div className="font-medium">{t("upgrade")}</div>
+            <div className="text-xs text-muted">149k/tháng · {t("unlimited")}</div>
           </div>
         </div>
 
         <Link href="/settings" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted hover:bg-panel mb-3">
-          <Settings className="w-4 h-4" /> Cài đặt
+          <Settings className="w-4 h-4" /> {t("settings")}
         </Link>
 
         <div className="flex items-center gap-3 px-3">

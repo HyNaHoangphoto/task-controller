@@ -6,11 +6,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        bg: "#131314",
-        panel: "#1a1b1c",
-        card: "#1f2020",
-        border: "#2a2b2c",
-        muted: "#abadb0",
+        bg: "var(--color-bg)",
+        panel: "var(--color-panel)",
+        card: "var(--color-card)",
+        border: "var(--color-border)",
+        muted: "var(--color-muted)",
+        text: "var(--color-text)",
         accent: {
           DEFAULT: "#34a853",
           light: "#5be58a",

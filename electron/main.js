@@ -38,6 +38,51 @@ function isInternal(targetUrl) {
 }
 
 let mainWindow = null;
+let splashWindow = null;
+
+function createSplash() {
+  splashWindow = new BrowserWindow({
+    width: 360,
+    height: 420,
+    frame: false,
+    resizable: false,
+    backgroundColor: "#131314",
+    alwaysOnTop: true,
+    center: true,
+    icon: path.join(__dirname, "..", "build", "icon.png"),
+    webPreferences: { contextIsolation: true },
+  });
+  splashWindow.loadURL(
+    "data:text/html;charset=utf-8," +
+      encodeURIComponent(`<!doctype html><html><head><meta charset="utf-8">
+      <style>
+        html,body{height:100%;margin:0;background:#131314;overflow:hidden}
+        body{display:flex;flex-direction:column;align-items:center;justify-content:center;
+          font-family:'Segoe UI',system-ui,sans-serif;color:#e8eaed;gap:16px;-webkit-app-region:drag}
+        .logo{width:64px;height:64px;border-radius:16px;
+          background:linear-gradient(135deg,#5be58a,#34a853);
+          display:flex;align-items:center;justify-content:center;
+          font-size:30px;font-weight:700;color:#fff;
+          box-shadow:0 8px 24px rgba(52,168,83,.35);
+          animation:pulse 1.8s ease-in-out infinite}
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+        h1{font-size:17px;font-weight:600;margin:0}
+        p{font-size:12px;color:#8b8d90;margin:0}
+        .dots{display:flex;gap:6px;margin-top:6px}
+        .dot{width:6px;height:6px;border-radius:50%;background:#34a853;opacity:.3;
+          animation:blink 1.2s infinite ease-in-out}
+        .dot:nth-child(2){animation-delay:.2s}
+        .dot:nth-child(3){animation-delay:.4s}
+        @keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+      </style></head>
+      <body>
+        <div class="logo">#</div>
+        <h1>Task Controller</h1>
+        <p>Đang khởi động workspace của bạn...</p>
+        <div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+      </body></html>`)
+  );
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -69,7 +114,13 @@ function createWindow() {
     mainWindow.loadURL(START_URL, { userAgent: chromeUA });
   });
 
-  mainWindow.once("ready-to-show", () => mainWindow.show());
+  mainWindow.once("ready-to-show", () => {
+    mainWindow.show();
+    if (splashWindow) {
+      splashWindow.close();
+      splashWindow = null;
+    }
+  });
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
@@ -124,6 +175,7 @@ if (!gotLock) {
 
   app.whenReady().then(() => {
     Menu.setApplicationMenu(buildMenu());
+    createSplash();
     createWindow();
     app.on("activate", () => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow();

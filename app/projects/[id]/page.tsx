@@ -280,7 +280,7 @@ export default async function ProjectDetailPage({
   );
 }
 
-function MiniStat({ label, value, color = "text-white" }: { label: string; value: string; color?: string }) {
+function MiniStat({ label, value, color = "text-text" }: { label: string; value: string; color?: string }) {
   return (
     <div className="card">
       <div className="text-xs text-muted mb-1">{label}</div>
