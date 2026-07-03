@@ -11,6 +11,47 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model BusinessProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type          String  @default("company") // "individual" | "company"
+  companyName   String?
+  signerName    String?
+  taxCode       String?
+  phone         String?
+  email         String?
+  website       String?
+  address       String?
+  industry      String? // Video, Design, Content...
+
+  bankName          String?
+  bankAccountName   String?
+  bankAccountNumber String?
+  bankQrUrl         String?
+  logoUrl           String?
+  signatureUrl      String?
+
+  invoiceFooterMessage String? @db.Text
+  defaultQuoteTerms     String? @db.Text
+  defaultContractTerms  String? @db.Text
+  defaultAcceptanceTemplate String? @db.Text
+  defaultAddendumTemplate   String? @db.Text
+
+  language String @default("vi") // "vi" | "en"
+
+  notifyEnabled              Boolean @default(false)
+  notifyEmail                String?
+  notifyInvoiceCreated       Boolean @default(true)
+  notifyInvoicePaid          Boolean @default(true)
+  notifyProjectStatusChange  Boolean @default(false)
+  notifyDeadlineChange       Boolean @default(true)
+  notifyDeadlineReminder7d   Boolean @default(true)
+
+  updatedAt DateTime @updatedAt
+}
+
 // ── Auth (NextAuth) ─────────────────────────────────────────────
 model User {
   id            String    @id @default(cuid())
@@ -25,6 +66,7 @@ model User {
   projects Project[]
   invoices Invoice[]
   teamMembers TeamMember[]
+  businessProfile BusinessProfile?
   createdAt DateTime @default(now())
 }
 

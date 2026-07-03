@@ -35,6 +35,10 @@ export async function createProject(formData: FormData) {
   const userId = await requireUserId();
   const contractValue = Number(formData.get("contractValue") || 0);
   const depositPct = Number(formData.get("depositPct") || 0);
+  const templateKey = String(formData.get("templateKey") || "");
+  const paymentStatus = (String(formData.get("paymentStatus") || "UNPAID") as any);
+  const startDateStr = String(formData.get("startDate") || "");
+  const startDate = startDateStr ? new Date(startDateStr) : new Date();
 
   const project = await prisma.project.create({
     data: {
@@ -43,12 +47,38 @@ export async function createProject(formData: FormData) {
       clientId: String(formData.get("clientId")),
       contractValue,
       depositPct,
-      startDate: formData.get("startDate") ? new Date(String(formData.get("startDate"))) : undefined,
+      startDate,
       deadline: formData.get("deadline") ? new Date(String(formData.get("deadline"))) : undefined,
       status: "RUNNING",
-      paymentStatus: "UNPAID",
+      paymentStatus,
     },
   });
+
+  // Áp mẫu dự án: tự tạo giai đoạn + task theo template đã chọn
+  if (templateKey) {
+    const { PROJECT_TEMPLATES } = await import("./projectTemplates");
+    const template = PROJECT_TEMPLATES.find((t) => t.key === templateKey);
+    if (template) {
+      for (const [idx, phase] of template.phases.entries()) {
+        const phaseStart = new Date(startDate); phaseStart.setDate(phaseStart.getDate() + phase.startOffset);
+        const phaseEnd = new Date(startDate); phaseEnd.setDate(phaseEnd.getDate() + phase.endOffset);
+        const createdPhase = await prisma.phase.create({
+          data: { projectId: project.id, name: phase.name, order: idx + 1, startDate: phaseStart, endDate: phaseEnd },
+        });
+        for (const t of phase.tasks) {
+          const dueDate = new Date(startDate); dueDate.setDate(dueDate.getDate() + t.dayOffset);
+          await prisma.task.create({
+            data: { projectId: project.id, phaseId: createdPhase.id, title: t.title, priority: t.priority, dueDate },
+          });
+        }
+      }
+      // Nếu chưa nhập hạn chót thủ công, tự tính theo tổng số ngày của mẫu
+      if (!formData.get("deadline")) {
+        const deadline = new Date(startDate); deadline.setDate(deadline.getDate() + template.totalDays);
+        await prisma.project.update({ where: { id: project.id }, data: { deadline } });
+      }
+    }
+  }
 
   // Tự tạo hoá đơn đặt cọc nếu có %
   if (depositPct > 0 && contractValue > 0) {
@@ -60,8 +90,8 @@ export async function createProject(formData: FormData) {
         code: `#INV${Date.now().toString().slice(-6)}`,
         title: `${project.name} (đặt cọc ${depositPct}%)`,
         totalAmount: contractValue,
-        paidAmount: 0,
-        status: "UNPAID",
+        paidAmount: paymentStatus === "PAID" ? contractValue : paymentStatus === "PARTIAL" ? depositAmount : 0,
+        status: paymentStatus,
         method: "Chuyển khoản",
       },
     });
@@ -205,6 +235,83 @@ export async function verifyContractOtp(contractId: string, code: string) {
   });
   revalidatePath(`/sign/${contractId}`);
   return { ok: true };
+}
+
+// ── Business Profile (Cài đặt) ──────────────────────────────────
+export async function saveBusinessProfile(formData: FormData) {
+  const userId = await requireUserId();
+  const bool = (v: FormDataEntryValue | null) => v === "on";
+
+  await prisma.businessProfile.upsert({
+    where: { userId },
+    update: {
+      type: String(formData.get("type") || "company"),
+      companyName: String(formData.get("companyName") || ""),
+      signerName: String(formData.get("signerName") || ""),
+      taxCode: String(formData.get("taxCode") || ""),
+      phone: String(formData.get("phone") || ""),
+      email: String(formData.get("email") || ""),
+      website: String(formData.get("website") || ""),
+      address: String(formData.get("address") || ""),
+      industry: String(formData.get("industry") || ""),
+      bankName: String(formData.get("bankName") || ""),
+      bankAccountName: String(formData.get("bankAccountName") || ""),
+      bankAccountNumber: String(formData.get("bankAccountNumber") || ""),
+      invoiceFooterMessage: String(formData.get("invoiceFooterMessage") || ""),
+      defaultQuoteTerms: String(formData.get("defaultQuoteTerms") || ""),
+      defaultContractTerms: String(formData.get("defaultContractTerms") || ""),
+      defaultAcceptanceTemplate: String(formData.get("defaultAcceptanceTemplate") || ""),
+      defaultAddendumTemplate: String(formData.get("defaultAddendumTemplate") || ""),
+      language: String(formData.get("language") || "vi"),
+      notifyEnabled: bool(formData.get("notifyEnabled")),
+      notifyEmail: String(formData.get("notifyEmail") || ""),
+      notifyInvoiceCreated: bool(formData.get("notifyInvoiceCreated")),
+      notifyInvoicePaid: bool(formData.get("notifyInvoicePaid")),
+      notifyProjectStatusChange: bool(formData.get("notifyProjectStatusChange")),
+      notifyDeadlineChange: bool(formData.get("notifyDeadlineChange")),
+      notifyDeadlineReminder7d: bool(formData.get("notifyDeadlineReminder7d")),
+    },
+    create: {
+      userId,
+      type: String(formData.get("type") || "company"),
+      companyName: String(formData.get("companyName") || ""),
+      signerName: String(formData.get("signerName") || ""),
+      taxCode: String(formData.get("taxCode") || ""),
+      phone: String(formData.get("phone") || ""),
+      email: String(formData.get("email") || ""),
+      website: String(formData.get("website") || ""),
+      address: String(formData.get("address") || ""),
+      industry: String(formData.get("industry") || ""),
+      bankName: String(formData.get("bankName") || ""),
+      bankAccountName: String(formData.get("bankAccountName") || ""),
+      bankAccountNumber: String(formData.get("bankAccountNumber") || ""),
+      invoiceFooterMessage: String(formData.get("invoiceFooterMessage") || ""),
+      defaultQuoteTerms: String(formData.get("defaultQuoteTerms") || ""),
+      defaultContractTerms: String(formData.get("defaultContractTerms") || ""),
+      defaultAcceptanceTemplate: String(formData.get("defaultAcceptanceTemplate") || ""),
+      defaultAddendumTemplate: String(formData.get("defaultAddendumTemplate") || ""),
+      language: String(formData.get("language") || "vi"),
+      notifyEnabled: bool(formData.get("notifyEnabled")),
+      notifyEmail: String(formData.get("notifyEmail") || ""),
+      notifyInvoiceCreated: bool(formData.get("notifyInvoiceCreated")),
+      notifyInvoicePaid: bool(formData.get("notifyInvoicePaid")),
+      notifyProjectStatusChange: bool(formData.get("notifyProjectStatusChange")),
+      notifyDeadlineChange: bool(formData.get("notifyDeadlineChange")),
+      notifyDeadlineReminder7d: bool(formData.get("notifyDeadlineReminder7d")),
+    },
+  });
+  revalidatePath("/settings");
+  return { ok: true };
+}
+
+export async function updateProfileFileUrl(field: "bankQrUrl" | "logoUrl" | "signatureUrl", url: string) {
+  const userId = await requireUserId();
+  await prisma.businessProfile.upsert({
+    where: { userId },
+    update: { [field]: url },
+    create: { userId, [field]: url },
+  });
+  revalidatePath("/settings");
 }
 
 // ── Đồng bộ Google Calendar ─────────────────────────────────────
