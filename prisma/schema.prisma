@@ -1,0 +1,248 @@
+// Task Controller — Prisma schema (Postgres / Supabase)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ── Auth (NextAuth) ─────────────────────────────────────────────
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  image         String?
+  emailVerified DateTime?
+  accounts      Account[]
+  sessions      Session[]
+
+  clients  Client[]
+  projects Project[]
+  invoices Invoice[]
+  teamMembers TeamMember[]
+  createdAt DateTime @default(now())
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  refresh_token_expires_in Int?
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ── Core domain ─────────────────────────────────────────────────
+model Client {
+  id        String   @id @default(cuid())
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name      String
+  company   String?
+  phone     String?
+  email     String?
+  address   String?
+  taxCode   String?
+  projects  Project[]
+  createdAt DateTime @default(now())
+}
+
+enum ProjectStatus {
+  RUNNING
+  PAUSED
+  DONE
+}
+
+enum PaymentStatus {
+  UNPAID
+  PARTIAL
+  PAID
+}
+
+model Project {
+  id            String        @id @default(cuid())
+  ownerId       String
+  owner         User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name          String
+  clientId      String
+  client        Client        @relation(fields: [clientId], references: [id])
+  status        ProjectStatus @default(RUNNING)
+  contractValue Int           @default(0)
+  depositPct    Int           @default(30)
+  startDate     DateTime?
+  deadline      DateTime?
+  paymentStatus PaymentStatus @default(UNPAID)
+
+  tasks     Task[]
+  phases    Phase[]
+  invoices  Invoice[]
+  quotes    Quote[]
+  contracts Contract[]
+  resources Resource[]
+  costs     ProjectCost[]
+  assignees ProjectAssignee[]
+  events    CalendarEvent[]
+
+  createdAt DateTime @default(now())
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model Phase {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name      String   // Tiền kỳ / Sản xuất / Hậu kỳ...
+  order     Int      @default(0)
+  startDate DateTime?
+  endDate   DateTime?
+  tasks     Task[]
+}
+
+model Task {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  phaseId   String?
+  phase     Phase?   @relation(fields: [phaseId], references: [id])
+  title     String
+  priority  Priority @default(MEDIUM)
+  dueDate   DateTime?
+  done      Boolean  @default(false)
+  assigneeId String?
+  assignee  TeamMember? @relation(fields: [assigneeId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name      String
+  email     String?
+  phone     String?
+  role      String?
+  tasks     Task[]
+  assignments ProjectAssignee[]
+  createdAt DateTime @default(now())
+}
+
+model ProjectAssignee {
+  id           String     @id @default(cuid())
+  projectId    String
+  project      Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  teamMemberId String
+  teamMember   TeamMember @relation(fields: [teamMemberId], references: [id])
+  payoutAmount Int        @default(0)
+  paid         Boolean    @default(false)
+}
+
+model ProjectCost {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  label     String
+  amount    Int
+  createdAt DateTime @default(now())
+}
+
+model Invoice {
+  id            String        @id @default(cuid())
+  ownerId       String
+  owner         User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  projectId     String
+  project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  code          String        // #INV260617
+  title         String        // "Quay clip (đặt cọc 30%)"
+  totalAmount   Int
+  paidAmount    Int           @default(0)
+  status        PaymentStatus @default(UNPAID)
+  issueDate     DateTime      @default(now())
+  dueDate       DateTime?
+  paidDate      DateTime?
+  method        String?       // Chuyển khoản...
+  note          String?
+  createdAt     DateTime      @default(now())
+}
+
+model Quote {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  code        String
+  content     String   @db.Text
+  totalAmount Int
+  createdAt   DateTime @default(now())
+}
+
+enum ContractDocType {
+  CONTRACT
+  ACCEPTANCE
+  PAYMENT_REQUEST
+  ADDENDUM
+}
+
+model Contract {
+  id          String          @id @default(cuid())
+  projectId   String
+  project     Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  docType     ContractDocType @default(CONTRACT)
+  code        String
+  place       String?
+  signDate    DateTime?
+  content     String          @db.Text
+  valueBefore Int             @default(0)
+  taxOption   String          @default("Không thuế")
+  depositPct  Int             @default(30)
+  periodStart DateTime?
+  periodEnd   DateTime?
+  signedByClient Boolean      @default(false)
+  otpCode        String?
+  otpExpiresAt   DateTime?
+  createdAt   DateTime        @default(now())
+}
+
+model Resource {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name      String
+  url       String   // Supabase Storage public URL
+  createdAt DateTime @default(now())
+}
+
+model CalendarEvent {
+  id         String   @id @default(cuid())
+  projectId  String?
+  project    Project? @relation(fields: [projectId], references: [id])
+  title      String
+  date       DateTime
+  googleEventId String?
+  createdAt  DateTime @default(now())
+}
