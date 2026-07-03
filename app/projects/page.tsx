@@ -6,7 +6,7 @@ import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import Link from "next/link";
 import { Plus } from "lucide-react";
-
+export const dynamic = "force-dynamic";
 const STATUS_LABEL: Record<string, string> = { RUNNING: "Đang chạy", PAUSED: "Tạm dừng", DONE: "Hoàn thành" };
 
 export default async function ProjectsPage() {

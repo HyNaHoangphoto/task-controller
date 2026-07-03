@@ -6,7 +6,7 @@ import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import { Link2 } from "lucide-react";
 import SyncCalendarButton from "@/components/SyncCalendarButton";
-
+export const dynamic = "force-dynamic";
 export default async function CalendarPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect("/login");

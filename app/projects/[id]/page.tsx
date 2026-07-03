@@ -9,7 +9,7 @@ import ProjectTabs from "@/components/ProjectTabs";
 import { createTask, createQuote, createContract, addResource } from "@/lib/actions";
 import TaskCheckbox from "@/components/TaskCheckbox";
 import ResourceUploader from "@/components/ResourceUploader";
-
+export const dynamic = "force-dynamic";
 const STATUS_LABEL: Record<string, string> = { RUNNING: "Đang chạy", PAUSED: "Tạm dừng", DONE: "Hoàn thành" };
 
 export default async function ProjectDetailPage({

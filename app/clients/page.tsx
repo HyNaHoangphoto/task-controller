@@ -6,7 +6,7 @@ import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import { Plus, Phone, Mail } from "lucide-react";
 import Link from "next/link";
-
+export const dynamic = "force-dynamic";
 export default async function ClientsPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect("/login");

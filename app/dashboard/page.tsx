@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import Sidebar from "@/components/Sidebar";
 import { Briefcase, FileSpreadsheet, UserCog, CalendarDays } from "lucide-react";
 import RevenueChart from "@/components/RevenueChart";
-
+export const dynamic = "force-dynamic";
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect("/login");
