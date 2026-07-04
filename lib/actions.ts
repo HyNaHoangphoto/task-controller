@@ -30,6 +30,37 @@ export async function createClient(formData: FormData) {
   redirect("/clients");
 }
 
+export async function updateProject(formData: FormData) {
+  const userId = await requireUserId();
+  const projectId = String(formData.get("projectId"));
+  const project = await prisma.project.findFirst({ where: { id: projectId, ownerId: userId } });
+  if (!project) redirect("/projects");
+
+  await prisma.project.update({
+    where: { id: projectId },
+    data: {
+      name: String(formData.get("name")),
+      clientId: String(formData.get("clientId")),
+      contractValue: Number(formData.get("contractValue") || 0),
+      depositPct: Number(formData.get("depositPct") || 0),
+      startDate: formData.get("startDate") ? new Date(String(formData.get("startDate"))) : undefined,
+      deadline: formData.get("deadline") ? new Date(String(formData.get("deadline"))) : undefined,
+      status: (String(formData.get("status")) as any) || "RUNNING",
+    },
+  });
+  revalidatePath(`/projects/${projectId}`);
+  redirect(`/projects/${projectId}`);
+}
+
+export async function deleteProject(projectId: string) {
+  const userId = await requireUserId();
+  const project = await prisma.project.findFirst({ where: { id: projectId, ownerId: userId } });
+  if (!project) return { ok: false };
+  await prisma.project.delete({ where: { id: projectId } });
+  revalidatePath("/projects");
+  redirect("/projects");
+}
+
 // ── Project (tự tạo phase mặc định + hoá đơn cọc nếu có %) ─────
 export async function createProject(formData: FormData) {
   const userId = await requireUserId();

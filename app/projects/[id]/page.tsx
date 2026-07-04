@@ -4,7 +4,8 @@ import { redirect, notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
-import { CheckCircle2, Pencil, Share2, MoreVertical } from "lucide-react";
+import { CheckCircle2, Share2, Pencil } from "lucide-react";
+import ProjectMoreMenu from "@/components/ProjectMoreMenu";
 import ProjectTabs from "@/components/ProjectTabs";
 import { createTask, createQuote, createContract, addResource } from "@/lib/actions";
 import TaskCheckbox from "@/components/TaskCheckbox";
@@ -53,9 +54,9 @@ export default async function ProjectDetailPage({
       <main className="flex-1 px-10 py-8 max-w-[1400px]">
         <div className="flex justify-end gap-2 mb-6">
           <button className="btn-ghost flex items-center gap-2"><CheckCircle2 className="w-4 h-4" /> Đánh dấu xong</button>
-          <button className="btn-ghost flex items-center gap-2"><Pencil className="w-4 h-4" /> Sửa</button>
+          <Link href={`/projects/${project.id}/edit`} className="btn-ghost flex items-center gap-2"><Pencil className="w-4 h-4" /> Sửa</Link>
           <button className="btn-accent flex items-center gap-2"><Share2 className="w-4 h-4" /> Chia sẻ</button>
-          <button className="btn-ghost !px-2.5"><MoreVertical className="w-4 h-4" /></button>
+          <ProjectMoreMenu projectId={project.id} projectName={project.name} />
         </div>
 
         <span className="text-xs px-2 py-0.5 rounded-full bg-accent/15 text-accent-light">{STATUS_LABEL[project.status]}</span>
