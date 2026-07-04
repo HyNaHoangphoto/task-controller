@@ -1,14 +1,30 @@
 "use client";
 
 import Link from "next/link";
+import {
+  LayoutDashboard,
+  FileText,
+  FileSignature,
+  FolderOpen,
+  CalendarRange,
+  Wallet,
+  type LucideIcon,
+} from "lucide-react";
 
-const TABS = [
-  { key: "overview", label: "Tổng quan" },
-  { key: "quotes", label: "Báo giá" },
-  { key: "contracts", label: "Hợp đồng" },
-  { key: "resources", label: "Tài nguyên" },
-  { key: "timeline", label: "Timeline" },
-  { key: "revenue", label: "Hợp tác phí" },
+type TabDef = {
+  key: string;
+  label: string;
+  icon: LucideIcon;
+  countKey?: string;
+};
+
+const TABS: TabDef[] = [
+  { key: "overview", label: "Tổng quan", icon: LayoutDashboard },
+  { key: "quotes", label: "Báo giá", icon: FileText, countKey: "quotes" },
+  { key: "contracts", label: "Hợp đồng", icon: FileSignature, countKey: "contracts" },
+  { key: "resources", label: "Tài nguyên", icon: FolderOpen, countKey: "resources" },
+  { key: "timeline", label: "Timeline", icon: CalendarRange, countKey: "timeline" },
+  { key: "revenue", label: "Hợp tác phí", icon: Wallet },
 ];
 
 export default function ProjectTabs({
@@ -21,23 +37,48 @@ export default function ProjectTabs({
   counts: Record<string, number>;
 }) {
   return (
-    <div className="flex items-center gap-1 border-b border-border">
-      {TABS.map((t) => {
-        const count = t.key === "quotes" ? counts.quotes : t.key === "contracts" ? counts.contracts : t.key === "resources" ? counts.resources : t.key === "timeline" ? counts.timeline : undefined;
-        const isActive = active === t.key;
-        return (
-          <Link
-            key={t.key}
-            href={`/projects/${projectId}?tab=${t.key}`}
-            className={`px-4 py-2.5 text-sm flex items-center gap-1.5 border-b-2 -mb-px ${
-              isActive ? "border-accent text-accent-light" : "border-transparent text-muted hover:text-white"
-            }`}
-          >
-            {t.label}
-            {count !== undefined && <span className="text-xs bg-panel px-1.5 rounded-full">{count}</span>}
-          </Link>
-        );
-      })}
+    <div className="sticky top-0 z-10 -mx-1 bg-bg/80 backdrop-blur">
+      <div className="flex items-center gap-1 overflow-x-auto no-scrollbar border-b border-border px-1">
+        {TABS.map((t) => {
+          const Icon = t.icon;
+          const count = t.countKey ? counts[t.countKey] : undefined;
+          const isActive = active === t.key;
+
+          return (
+            <Link
+              key={t.key}
+              href={`/projects/${projectId}?tab=${t.key}`}
+              className={`group relative flex shrink-0 items-center gap-2 whitespace-nowrap px-4 py-3 text-sm font-medium transition-colors ${
+                isActive ? "text-accent-light" : "text-muted hover:text-text"
+              }`}
+            >
+              <Icon
+                className={`h-4 w-4 shrink-0 transition-colors ${
+                  isActive ? "text-accent-light" : "text-muted group-hover:text-text"
+                }`}
+              />
+              {t.label}
+
+              {count !== undefined && (
+                <span
+                  className={`min-w-[20px] rounded-full px-1.5 py-0.5 text-center text-[11px] font-semibold leading-none transition-colors ${
+                    isActive ? "bg-accent/15 text-accent-light" : "bg-panel text-muted"
+                  }`}
+                >
+                  {count}
+                </span>
+              )}
+
+              {/* Active indicator */}
+              <span
+                className={`absolute inset-x-3 -bottom-px h-[2px] rounded-full bg-accent-gradient transition-opacity ${
+                  isActive ? "opacity-100" : "opacity-0 group-hover:opacity-40"
+                }`}
+              />
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

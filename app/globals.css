@@ -49,3 +49,11 @@ html, body {
 .label {
   @apply text-xs tracking-wide text-muted mb-1.5 block uppercase;
 }
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
